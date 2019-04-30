@@ -8,7 +8,8 @@
   <script src="index.js"></script>
 </head>
 <body onload="window.init();">
-  <label>Upload log file for analysis: <input type="file" onchange="analyse(this.files[0]);"></label>
+  <label>Upload log file for analysis: <input type="file" onchange="window.analyseFile(this.files[0]);"></label>
+    or paste url <input onchange="window.analyseURL(this.value);">
   <div class="main">
     <div id="panel">
       <label><input id="show-expected" checked

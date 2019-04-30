@@ -4,78 +4,88 @@
 /**
  * Visualizes the log.
  */
-window.analyse = file => {
-  panelEl.textContent = '';
-
+window.analyseFile = file => {
   const reader = new FileReader();
   reader.onload = ev => {
-    let frameEl = null;
-    let testIdx = 0;
-    let frameIdx = 0;
-
-    let content = ev.target.result;
-    let logs = content.match(/\[fta\:[^\]]+\]\s[^\n]*/g);
-    if (logs) {
-      for (let log of logs) {
-        let blocks = log.match(/\[fta\:([^\]]+)\]\s(.*)/);
-        let event = blocks && blocks[1];
-        console.log(event);
-        let data = blocks && blocks[2];
-
-        switch (event) {
-          case 'test': {
-            frameIdx = 0;
-            let el = document.createElement('div');
-            el.textContent = `Test #${++testIdx}: ${data}`;
-            panelEl.appendChild(el);
-          } break;
-
-          case 'frame-size':
-            frameEl = document.createElement('div');
-            frameEl.className = 'frame';
-            frameEl.innerHTML = `<span class='failed'>!</span> <a href=''>Frame #${++frameIdx}</a>`;
-            frameEl.onclick = ev => {
-              let prevEl = document.querySelector('[current]');
-              if (prevEl) {
-                prevEl.removeAttribute('current');
-              }
-              let el = ev.currentTarget;
-              el.setAttribute('current', 'true');
-              ev.preventDefault();
-              currentData = ev.currentTarget.data;
-              showFrame(currentData);
-            }
-            panelEl.appendChild(frameEl);
-            frameEl.data = {
-              idx: frameIdx,
-              size: JSON.parse(data),
-              pic: data,
-              unexpectedRects: []
-            };
-            break;
-
-          case 'frame-pic':
-            frameEl.data.pic = data;
-            break;
-
-          case 'frame-expected-rects': {
-            frameEl.data.rects = JSON.parse(data);
-            appendRects('Expected rects: ', frameEl.data.rects);
-          } break;
-
-          case 'frame-unexpected-rects':
-            frameEl.setAttribute('failed', 'true');
-            frameEl.data.unexpectedRects = JSON.parse(data);
-            appendRects('Unexpected rects: ', frameEl.data.unexpectedRects);
-            break;
-        }
-      }
-      if (frameEl) {
-        frameEl.click();
-      }
-    }
+    window.analyse(ev.target.result);
   }
   reader.readAsText(file);
+}
+
+window.analyseURL = url => {
+  const request = new Request(url);
+  fetch(request).
+    then(response => response.text()).
+    then(content => window.analyse(content));
+}
+
+window.analyse = content => {
+  panelEl.textContent = '';
+
+  let frameEl = null;
+  let testIdx = 0;
+  let frameIdx = 0;
+
+  let logs = content.match(/\[fta\:[^\]]+\]\s[^\n]*/g);
+  if (logs) {
+    for (let log of logs) {
+      let blocks = log.match(/\[fta\:([^\]]+)\]\s(.*)/);
+      let event = blocks && blocks[1];
+      console.log(event);
+      let data = blocks && blocks[2];
+
+      switch (event) {
+        case 'test': {
+          frameIdx = 0;
+          let el = document.createElement('div');
+          el.textContent = `Test #${++testIdx}: ${data}`;
+          panelEl.appendChild(el);
+        } break;
+
+        case 'frame-size':
+          frameEl = document.createElement('div');
+          frameEl.className = 'frame';
+          frameEl.innerHTML = `<span class='failed'>!</span> <a href=''>Frame #${++frameIdx}</a>`;
+          frameEl.onclick = ev => {
+            let prevEl = document.querySelector('[current]');
+            if (prevEl) {
+              prevEl.removeAttribute('current');
+            }
+            let el = ev.currentTarget;
+            el.setAttribute('current', 'true');
+            ev.preventDefault();
+            currentData = ev.currentTarget.data;
+            showFrame(currentData);
+          }
+          panelEl.appendChild(frameEl);
+          frameEl.data = {
+            idx: frameIdx,
+            size: JSON.parse(data),
+            pic: data,
+            unexpectedRects: []
+          };
+          break;
+
+        case 'frame-pic':
+          frameEl.data.pic = data;
+          break;
+
+        case 'frame-expected-rects': {
+          frameEl.data.rects = JSON.parse(data);
+          appendRects('Expected rects: ', frameEl.data.rects);
+        } break;
+
+        case 'frame-unexpected-rects':
+          frameEl.setAttribute('failed', 'true');
+          frameEl.data.unexpectedRects = JSON.parse(data);
+          appendRects('Unexpected rects: ', frameEl.data.unexpectedRects);
+          break;
+      }
+    }
+    if (frameEl) {
+      frameEl.click();
+    }
+  }
 };
 
 function appendRects(label, rects)
