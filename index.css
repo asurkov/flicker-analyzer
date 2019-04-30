@@ -10,6 +10,8 @@
 
 #panel {
   min-width: 10%;
+  display: flex;
+  flex-direction: column;
 }
 
 .frame {

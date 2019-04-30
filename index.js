@@ -13,7 +13,7 @@ window.analyse = file => {
     let frameIdx = 0;
 
     let content = ev.target.result;
-    let logs = content.match(/\[fta\:.+\]\s.*/g);
+    let logs = content.match(/\[fta\:[^\]]+\]\s[^\n]*/g);
     if (logs) {
       for (let log of logs) {
         let blocks = log.match(/\[fta\:([^\]]+)\]\s(.*)/);
@@ -57,6 +57,10 @@ window.analyse = file => {
             frameEl.data.pic = data;
             break;
 
+          case 'frame-expected-rects':
+            frameEl.data.rects = JSON.parse(data);
+            break;
+
           case 'frame-unexpected-rects':
             frameEl.setAttribute('failed', 'true');
             frameEl.data.unexpectedRects = JSON.parse(data);
@@ -89,12 +93,22 @@ function showFrame()
   img.onload = () => {
     ctx.drawImage(img, 0, 0, w, h);
 
+    if (showExpectedRects) {
+      let rects = currentData.rects;
+      if (rects && rects.length > 0) {
+        ctx.strokeStyle = 'green';
+        for (let r of rects) {
+          ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+        }
+      }
+    }
+
     if (showUnexpectedRects) {
       let rects = currentData.unexpectedRects;
       if (rects && rects.length > 0) {
         ctx.strokeStyle = 'red';
-        for (let rect of rects) {
-          ctx.strokeRect(rect.x1, rect.y1, rect.w, rect.h);
+        for (let r of rects) {
+          ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
         }
       }
     }
@@ -103,9 +117,21 @@ function showFrame()
 }
 
 let showUnexpectedRects = true;
-function toggleUnexpectedRects()
-{
+let showExpectedRects = true;
+
+window.init = () => {
+  showExpectedRects = document.getElementById('show-expected').checked;
+  showUnexpectedRects = document.getElementById('show-unexpected').checked;
+  console.log(`${showExpectedRects} ${showUnexpectedRects}`);
+}
+
+window.toggleUnexpectedRects = () => {
   showUnexpectedRects = !showUnexpectedRects;
+  showFrame(currentData);
+}
+
+window.toggleExpectedRects = () => {
+  showExpectedRects = !showExpectedRects;
   showFrame(currentData);
 }
 

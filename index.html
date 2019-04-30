@@ -7,11 +7,16 @@
         href="index.css">
   <script src="index.js"></script>
 </head>
-<body>
+<body onload="window.init();">
   <label>Upload log file for analysis: <input type="file" onchange="analyse(this.files[0]);"></label>
   <div class="main">
     <div id="panel">
-      <label>Show unexpected areas <input checked onclick="toggleUnexpectedRects(ev);" type="checkbox"></label>
+      <label><input id="show-expected" checked
+                    onclick="window.toggleExpectedRects();"
+                    type="checkbox"> Show expected areas</label>
+      <label><input id="show-unexpected" checked
+                    onclick="window.toggleUnexpectedRects();"
+                    type="checkbox"> Show unexpected areas </label>
     </div>
     <canvas id="canvas"></canvas>
   </div>
