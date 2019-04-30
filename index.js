@@ -2,12 +2,13 @@
   'use strict';
 
 /**
- *
+ * Visualizes the log.
  */
 window.analyse = file => {
+  panelEl.textContent = '';
+
   const reader = new FileReader();
   reader.onload = ev => {
-    let panelEl = document.getElementById('panel');
     let frameEl = null;
     let testIdx = 0;
     let frameIdx = 0;
@@ -57,13 +58,15 @@ window.analyse = file => {
             frameEl.data.pic = data;
             break;
 
-          case 'frame-expected-rects':
+          case 'frame-expected-rects': {
             frameEl.data.rects = JSON.parse(data);
-            break;
+            appendRects('Expected rects: ', frameEl.data.rects);
+          } break;
 
           case 'frame-unexpected-rects':
             frameEl.setAttribute('failed', 'true');
             frameEl.data.unexpectedRects = JSON.parse(data);
+            appendRects('Unexpected rects: ', frameEl.data.unexpectedRects);
             break;
         }
       }
@@ -74,6 +77,31 @@ window.analyse = file => {
   }
   reader.readAsText(file);
 };
+
+function appendRects(label, rects)
+{
+  let el = document.createElement('div');
+  el.textContent = label;
+
+  for (let r of rects) {
+    el.appendChild(document.createElement('br'));
+
+    let l = document.createElement('label')
+    l.innerHTML = `<input type="checkbox" checked>${JSON.stringify(r)}`;
+    let i = l.querySelector('input');
+    i.rect = r;
+    i.rect.visible = true;
+    i.onclick = ev => {
+      ev.target.rect.visible = !ev.target.rect.visible;
+      showFrame();
+    }
+    l.appendChild(i);
+    el.appendChild(l);
+  }
+
+  el.className = 'rects';
+  panelEl.appendChild(el);
+}
 
 let currentData = null;
 
@@ -98,7 +126,9 @@ function showFrame()
       if (rects && rects.length > 0) {
         ctx.strokeStyle = 'green';
         for (let r of rects) {
-          ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+          if (r.visible) {
+            ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+          }
         }
       }
     }
@@ -108,7 +138,9 @@ function showFrame()
       if (rects && rects.length > 0) {
         ctx.strokeStyle = 'red';
         for (let r of rects) {
-          ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+          if (r.visible) {
+            ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+          }
         }
       }
     }
@@ -118,11 +150,13 @@ function showFrame()
 
 let showUnexpectedRects = true;
 let showExpectedRects = true;
+let panelEl = null;
 
 window.init = () => {
+  panelEl = document.getElementById('panel');
+
   showExpectedRects = document.getElementById('show-expected').checked;
   showUnexpectedRects = document.getElementById('show-unexpected').checked;
-  console.log(`${showExpectedRects} ${showUnexpectedRects}`);
 }
 
 window.toggleUnexpectedRects = () => {
