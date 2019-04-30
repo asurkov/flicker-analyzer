@@ -72,13 +72,18 @@ window.analyse = content => {
 
         case 'frame-expected-rects': {
           frameEl.data.rects = JSON.parse(data);
-          appendRects('Expected rects: ', frameEl.data.rects);
+          appendRects('Expected rects: ', 'green', frameEl.data.rects);
+        } break;
+
+        case 'frame-accepted-rects': {
+          frameEl.data.acceptedRects = JSON.parse(data);
+          appendRects('Accepted rects: ', 'blue', frameEl.data.acceptedRects);
         } break;
 
         case 'frame-unexpected-rects':
           frameEl.setAttribute('failed', 'true');
           frameEl.data.unexpectedRects = JSON.parse(data);
-          appendRects('Unexpected rects: ', frameEl.data.unexpectedRects);
+          appendRects('Unexpected rects: ', 'red', frameEl.data.unexpectedRects);
           break;
       }
     }
@@ -88,16 +93,18 @@ window.analyse = content => {
   }
 };
 
-function appendRects(label, rects)
+function appendRects(label, color, rects)
 {
   let el = document.createElement('div');
-  el.textContent = label;
+  el.innerHTML = `<span style="background-color: ${color}">&nbsp;</span> ${label}`;
 
   for (let r of rects) {
     el.appendChild(document.createElement('br'));
 
     let l = document.createElement('label')
-    l.innerHTML = `<input type="checkbox" checked>${JSON.stringify(r)}`;
+    l.innerHTML = `
+      <input type="checkbox" checked>${JSON.stringify(r)}
+    `;
     let i = l.querySelector('input');
     i.rect = r;
     i.rect.visible = true;
@@ -143,6 +150,18 @@ function showFrame()
       }
     }
 
+    if (showAcceptedRects) {
+      let rects = currentData.acceptedRects;
+      if (rects && rects.length > 0) {
+        ctx.strokeStyle = 'blue';
+        for (let r of rects) {
+          if (r.visible) {
+            ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
+          }
+        }
+      }
+    }
+
     if (showUnexpectedRects) {
       let rects = currentData.unexpectedRects;
       if (rects && rects.length > 0) {
@@ -160,6 +179,7 @@ function showFrame()
 
 let showUnexpectedRects = true;
 let showExpectedRects = true;
+let showAcceptedRects = true;
 let panelEl = null;
 
 window.init = () => {
@@ -176,6 +196,11 @@ window.toggleUnexpectedRects = () => {
 
 window.toggleExpectedRects = () => {
   showExpectedRects = !showExpectedRects;
+  showFrame(currentData);
+}
+
+window.toggleAcceptedRects = () => {
+  showAcceptedRects = !showAcceptedRects;
   showFrame(currentData);
 }
 

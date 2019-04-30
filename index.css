@@ -24,7 +24,9 @@
   background-color: #e0e0e0;
 }
 
-.frame[current] + .rects {
+.frame[current] + .rects,
+.frame[current] + .rects + .rects,
+.frame[current] + .rects + .rects + .rects {
   display: unset;
 }
 
