@@ -187,6 +187,19 @@ window.init = () => {
 
   showExpectedRects = document.getElementById('show-expected').checked;
   showUnexpectedRects = document.getElementById('show-unexpected').checked;
+
+  let params = {};
+  let raw_params = decodeURIComponent(window.location.hash).substr(1).split(/[&;]/);
+  for (let raw_param of raw_params) {
+    let pair = raw_param.split('=');
+    params[pair[0]] = pair[1];
+  }
+
+  if (params.log) {
+    analyse(params.log);
+  } else if (params.logurl) {
+    analyseURL(params.logurl);
+  }
 }
 
 window.toggleUnexpectedRects = () => {
