@@ -80,7 +80,6 @@ window.analyse = content => {
           appendRects("Accepted rects: ", "blue", frameEl.data.acceptedRects);
         } break;
 
-        case 'frame-unexpected-rects':
         case "frame-unexpected-rects":
           frameEl.setAttribute('failed', 'true');
           frameEl.data.unexpectedRects = JSON.parse(data);
