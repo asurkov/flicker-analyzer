@@ -11,17 +11,7 @@
   <label>Upload log file for analysis: <input type="file" onchange="window.analyseFile(this.files[0]);"></label>
     or paste url <input onchange="window.analyseURL(this.value);">
   <div class="main">
-    <div id="panel">
-      <label><input id="show-expected" checked
-                    onclick="window.toggleExpectedRects();"
-                    type="checkbox"> Show expected areas</label>
-      <label><input id="show-accepted" checked
-                    onclick="window.toggleAcceptedRects();"
-                    type="checkbox"> Show accepted areas </label>
-      <label><input id="show-unexpected" checked
-                    onclick="window.toggleUnexpectedRects();"
-                    type="checkbox"> Show unexpected areas </label>
-    </div>
+    <div id="panel"></div>
     <canvas id="canvas"></canvas>
   </div>
 </body>

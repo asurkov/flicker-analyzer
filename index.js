@@ -1,5 +1,5 @@
 (function() {
-  'use strict';
+  "use strict";
 
 /**
  * Visualizes the log.
@@ -35,24 +35,24 @@ window.analyse = content => {
       let data = blocks && blocks[2];
 
       switch (event) {
-        case 'test': {
+        case "test": {
           frameIdx = 0;
-          let el = document.createElement('div');
+          let el = document.createElement("div");
           el.textContent = `Test #${++testIdx}: ${data}`;
           panelEl.appendChild(el);
         } break;
 
-        case 'frame-size':
-          frameEl = document.createElement('div');
-          frameEl.className = 'frame';
+        case "frame-size":
+          frameEl = document.createElement("div");
+          frameEl.className = "frame";
           frameEl.innerHTML = `<span class='failed'>!</span> <a href=''>Frame #${++frameIdx}</a>`;
           frameEl.onclick = ev => {
-            let prevEl = document.querySelector('[current]');
+            let prevEl = document.querySelector("[current]");
             if (prevEl) {
-              prevEl.removeAttribute('current');
+              prevEl.removeAttribute("current");
             }
             let el = ev.currentTarget;
-            el.setAttribute('current', 'true');
+            el.setAttribute("current", "true");
             ev.preventDefault();
             currentData = ev.currentTarget.data;
             showFrame(currentData);
@@ -66,24 +66,25 @@ window.analyse = content => {
           };
           break;
 
-        case 'frame-pic':
+        case "frame-pic":
           frameEl.data.pic = data;
           break;
 
-        case 'frame-expected-rects': {
+        case "frame-expected-rects": {
           frameEl.data.rects = JSON.parse(data);
-          appendRects('Expected rects: ', 'green', frameEl.data.rects);
+          appendRects("Expected rects: ", "green", frameEl.data.rects);
         } break;
 
-        case 'frame-accepted-rects': {
+        case "frame-accepted-rects": {
           frameEl.data.acceptedRects = JSON.parse(data);
-          appendRects('Accepted rects: ', 'blue', frameEl.data.acceptedRects);
+          appendRects("Accepted rects: ", "blue", frameEl.data.acceptedRects);
         } break;
 
         case 'frame-unexpected-rects':
+        case "frame-unexpected-rects":
           frameEl.setAttribute('failed', 'true');
           frameEl.data.unexpectedRects = JSON.parse(data);
-          appendRects('Unexpected rects: ', 'red', frameEl.data.unexpectedRects);
+          appendRects("Unexpected rects: ", "red", frameEl.data.unexpectedRects);
           break;
       }
     }
@@ -95,17 +96,17 @@ window.analyse = content => {
 
 function appendRects(label, color, rects)
 {
-  let el = document.createElement('div');
+  let el = document.createElement("div");
   el.innerHTML = `<span style="background-color: ${color}">&nbsp;</span> ${label}`;
 
   for (let r of rects) {
-    el.appendChild(document.createElement('br'));
+    el.appendChild(document.createElement("br"));
 
-    let l = document.createElement('label')
+    let l = document.createElement("label");
     l.innerHTML = `
       <input type="checkbox" checked>${JSON.stringify(r)}
     `;
-    let i = l.querySelector('input');
+    let i = l.querySelector("input");
     i.rect = r;
     i.rect.visible = true;
     i.onclick = ev => {
@@ -116,7 +117,7 @@ function appendRects(label, color, rects)
     el.appendChild(l);
   }
 
-  el.className = 'rects';
+  el.className = "rects";
   panelEl.appendChild(el);
 }
 
@@ -127,45 +128,25 @@ function showFrame()
   let w = currentData.size.width;
   let h = currentData.size.height;
 
-  let canvas = document.getElementById('canvas');
+  let canvas = document.getElementById("canvas");
   canvas.mozOpaque = true;
   canvas.width = w;
   canvas.height = h;
 
-  let ctx = canvas.getContext('2d', {alpha: false, willReadFrequently: true});
+  let ctx = canvas.getContext("2d", {alpha: false, willReadFrequently: true});
 
   let img = new Image();
   img.onload = () => {
     ctx.drawImage(img, 0, 0, w, h);
 
-    if (showExpectedRects) {
-      let rects = currentData.rects;
+    const areasInfo = [
+      [currentData.rects, "green"],
+      [currentData.acceptedRects, "blue"],
+      [currentData.unexpectedRects, "red"],
+    ];
+    for (let [ rects, color] of areasInfo) {
       if (rects && rects.length > 0) {
-        ctx.strokeStyle = 'green';
-        for (let r of rects) {
-          if (r.visible) {
-            ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
-          }
-        }
-      }
-    }
-
-    if (showAcceptedRects) {
-      let rects = currentData.acceptedRects;
-      if (rects && rects.length > 0) {
-        ctx.strokeStyle = 'blue';
-        for (let r of rects) {
-          if (r.visible) {
-            ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
-          }
-        }
-      }
-    }
-
-    if (showUnexpectedRects) {
-      let rects = currentData.unexpectedRects;
-      if (rects && rects.length > 0) {
-        ctx.strokeStyle = 'red';
+        ctx.strokeStyle = color;
         for (let r of rects) {
           if (r.visible) {
             ctx.strokeRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
@@ -177,16 +158,10 @@ function showFrame()
   img.src = currentData.pic;
 }
 
-let showUnexpectedRects = true;
-let showExpectedRects = true;
-let showAcceptedRects = true;
 let panelEl = null;
 
 window.init = () => {
-  panelEl = document.getElementById('panel');
-
-  showExpectedRects = document.getElementById('show-expected').checked;
-  showUnexpectedRects = document.getElementById('show-unexpected').checked;
+  panelEl = document.getElementById("panel");
 
   let params = {};
   let raw_params = decodeURIComponent(window.location.hash).substr(1).split(/[&;]/);
@@ -200,21 +175,6 @@ window.init = () => {
   } else if (params.logurl) {
     analyseURL(params.logurl);
   }
-}
-
-window.toggleUnexpectedRects = () => {
-  showUnexpectedRects = !showUnexpectedRects;
-  showFrame(currentData);
-}
-
-window.toggleExpectedRects = () => {
-  showExpectedRects = !showExpectedRects;
-  showFrame(currentData);
-}
-
-window.toggleAcceptedRects = () => {
-  showAcceptedRects = !showAcceptedRects;
-  showFrame(currentData);
 }
 
 }());
