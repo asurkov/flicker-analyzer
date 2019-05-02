@@ -20,7 +20,7 @@ window.analyseURL = url => {
 }
 
 window.analyse = content => {
-  panelEl.textContent = '';
+  panelEl.textContent = "";
 
   let frameEl = null;
   let testIdx = 0;
@@ -45,7 +45,7 @@ window.analyse = content => {
         case "frame-size":
           frameEl = document.createElement("div");
           frameEl.className = "frame";
-          frameEl.innerHTML = `<span class='failed'>!</span> <a href=''>Frame #${++frameIdx}</a>`;
+          frameEl.innerHTML = `<span class="failed">!</span> <a href="">Frame #${++frameIdx}</a>`;
           frameEl.onclick = ev => {
             let prevEl = document.querySelector("[current]");
             if (prevEl) {
@@ -81,7 +81,7 @@ window.analyse = content => {
         } break;
 
         case "frame-unexpected-rects":
-          frameEl.setAttribute('failed', 'true');
+          frameEl.setAttribute("failed", "true");
           frameEl.data.unexpectedRects = JSON.parse(data);
           appendRects("Unexpected rects: ", "red", frameEl.data.unexpectedRects);
           break;
@@ -165,7 +165,7 @@ window.init = () => {
   let params = {};
   let raw_params = decodeURIComponent(window.location.hash).substr(1).split(/[&;]/);
   for (let raw_param of raw_params) {
-    let pair = raw_param.split('=');
+    let pair = raw_param.split("=");
     params[pair[0]] = pair[1];
   }
 
