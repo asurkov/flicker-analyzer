@@ -1,3 +1,9 @@
+body {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
 .main {
   display: flex;
   flex-direction: row;
@@ -44,4 +50,9 @@
   margin-left: 2em;
   overflow: auto;
   display: none;
+}
+
+footer {
+  font-size: small;
+  padding: 1em;
 }

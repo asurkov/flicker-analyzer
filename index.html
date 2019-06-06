@@ -8,10 +8,16 @@
   <script src="index.js"></script>
 </head>
 <body onload="window.init();">
-  <label>Upload log file for analysis: <input type="file" onchange="window.analyseFile(this.files[0]);"></label>
-    or paste url <input onchange="window.analyseURL(this.value);">
+  <div>
+    <label>Upload log file for analysis: <input type="file" onchange="window.analyseFile(this.files[0]);"></label><br>
+      or paste url <input onchange="window.analyseURL(this.value);">
+  </div>
   <div class="main">
     <div id="panel"></div>
     <canvas id="canvas"></canvas>
   </div>
+  <footer>
+    <p>Note, you have to have a patch from <a href="https://bugzilla.mozilla.org/show_bug.cgi?id=1547319">bug 1547319</a> applied to analyze logs from try server</p>
+    <p>Sourcers are at <a href="https://github.com/asurkov/flicker-analyzer">github.com</a></p>
+  </footer>
 </body>
